@@ -1,0 +1,1561 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ㄅㄆㄇ動物聽力大冒險 - 國小一年級注音練習</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Zen Maru Gothic & Noto Sans TC -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&family=Zen+Maru+Gothic:wght@700;900&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            --font-rounded: 'Zen Maru Gothic', 'Noto Sans TC', sans-serif;
+        }
+        body {
+            font-family: var(--font-rounded);
+            background-color: #FFFBEB;
+            background-image: 
+                radial-gradient(#FDE68A 2px, transparent 2px), 
+                radial-gradient(#BAE6FD 2px, #FFFBEB 2px);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* 3D Playful Button Effects */
+        .btn-3d-amber {
+            background: linear-gradient(180deg, #FBBF24 0%, #F59E0B 100%);
+            box-shadow: 0 6px 0 #B45309, 0 8px 15px rgba(0,0,0,0.15);
+            transition: all 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-3d-amber:active {
+            transform: translateY(5px);
+            box-shadow: 0 1px 0 #B45309, 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .btn-3d-sky {
+            background: linear-gradient(180deg, #38BDF8 0%, #0284C7 100%);
+            box-shadow: 0 6px 0 #0369A1, 0 8px 15px rgba(0,0,0,0.15);
+            transition: all 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-3d-sky:active {
+            transform: translateY(5px);
+            box-shadow: 0 1px 0 #0369A1, 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .btn-3d-emerald {
+            background: linear-gradient(180deg, #34D399 0%, #10B981 100%);
+            box-shadow: 0 6px 0 #047857, 0 8px 15px rgba(0,0,0,0.15);
+            transition: all 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-3d-emerald:active {
+            transform: translateY(5px);
+            box-shadow: 0 1px 0 #047857, 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .btn-option-card {
+            background: #FFFFFF;
+            border: 4px solid #E2E8F0;
+            box-shadow: 0 8px 0 #CBD5E1, 0 10px 15px rgba(0,0,0,0.06);
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-option-card:hover:not(:disabled) {
+            border-color: #38BDF8;
+            box-shadow: 0 8px 0 #7DD3FC, 0 12px 20px rgba(56, 189, 248, 0.18);
+            transform: translateY(-2px);
+        }
+        .btn-option-card:active:not(:disabled) {
+            transform: translateY(6px);
+            box-shadow: 0 2px 0 #94A3B8;
+        }
+
+        /* Selected State (During Exam - Neutral, No Correct/Wrong Hint) */
+        .option-selected {
+            background: #E0F2FE !important;
+            border-color: #0284C7 !important;
+            box-shadow: 0 6px 0 #0369A1 !important;
+            transform: translateY(-2px);
+        }
+        .option-selected .zhuyin-syllable {
+            background: #F0F9FF;
+            border-color: #7DD3FC;
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 18px rgba(56, 189, 248, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); }
+        }
+        .speaker-playing {
+            animation: pulse-ring 1.2s infinite;
+        }
+
+        /* Traditional Taiwanese Vertical Bopomofo Option Word Box */
+        .zhuyin-word-option {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            padding: 0.25rem;
+        }
+        .zhuyin-syllable {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #F8FAFC;
+            border: 2px solid #E2E8F0;
+            border-radius: 16px;
+            padding: 8px 14px;
+            min-width: 50px;
+            min-height: 96px;
+            position: relative;
+        }
+        .option-correct .zhuyin-syllable {
+            background: #F0FDF4;
+            border-color: #86EFAC;
+        }
+        .option-wrong .zhuyin-syllable {
+            background: #FEF2F2;
+            border-color: #FCA5A5;
+        }
+        .zhuyin-chars-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.65rem;
+            font-weight: 900;
+            line-height: 1.12;
+            color: #1E293B;
+        }
+        .zhuyin-tone-side {
+            font-size: 1.45rem;
+            font-weight: 900;
+            color: #0284C7;
+            margin-left: 2px;
+            align-self: center;
+            line-height: 1;
+        }
+        .zhuyin-tone-dot {
+            font-size: 1.35rem;
+            font-weight: 900;
+            color: #0284C7;
+            line-height: 0.5;
+            margin-bottom: 3px;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #FEF3C7;
+            border-radius: 99px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #F59E0B;
+            border-radius: 99px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col text-slate-800">
+
+    <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b-4 border-amber-300 shadow-sm px-3 py-2.5 sm:px-6">
+        <div class="max-w-5xl mx-auto flex flex-wrap items-center justify-between gap-2">
+            <!-- Brand Title -->
+            <div class="flex items-center gap-2.5">
+                <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white text-2xl font-black shadow-md border-2 border-white">
+                    ㄅ
+                </div>
+                <div>
+                    <h1 class="text-lg sm:text-2xl font-black tracking-tight text-slate-800 flex items-center gap-1.5">
+                        <span>小一注音聽力測驗</span>
+                        <span class="hidden sm:inline-block text-xs bg-amber-100 text-amber-800 border border-amber-300 px-2 py-0.5 rounded-full font-bold">三選一測驗</span>
+                    </h1>
+                    <p class="text-xs sm:text-sm text-slate-500 font-bold">聽動物名稱，選出正確的語詞注音</p>
+                </div>
+            </div>
+
+            <!-- Settings & Restart Button -->
+            <div class="flex items-center gap-1.5 sm:gap-2">
+                <!-- Change Student Button -->
+                <button onclick="showLoginScreen()" class="px-3 py-2 sm:px-4 sm:py-2 rounded-2xl font-black text-sm sm:text-base transition-all flex items-center gap-1.5 bg-amber-500 hover:bg-amber-600 text-white shadow-md">
+                    <i class="fa-solid fa-user-check"></i>
+                    <span>切換班級座號</span>
+                </button>
+                <!-- Score Records Button -->
+                <button onclick="openScoreboardModal()" class="px-3 py-2 sm:px-4 sm:py-2 rounded-2xl font-black text-sm sm:text-base transition-all flex items-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white shadow-md">
+                    <i class="fa-solid fa-trophy"></i>
+                    <span class="hidden sm:inline">成績紀錄</span>
+                    <span id="score-count-badge" class="bg-white text-emerald-700 text-xs px-2 py-0.5 rounded-full font-black">0筆</span>
+                </button>
+                <button onclick="openSettingsModal()" class="p-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-all" title="測驗設定">
+                    <i class="fa-solid fa-gear text-lg"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-5xl w-full mx-auto px-3 py-4 sm:px-6 sm:py-6 flex flex-col">
+
+        <!-- ==================== VIEW 0: PRE-EXAM CLASS & SEAT SELECTION ==================== -->
+        <section id="view-login" class="flex-1 flex flex-col items-center justify-center py-2">
+            <div class="bg-white rounded-3xl max-w-3xl w-full p-5 sm:p-8 border-4 border-amber-300 shadow-xl flex flex-col gap-6">
+                <!-- Title Banner -->
+                <div class="text-center">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-amber-100 border-4 border-amber-300 text-amber-600 text-3xl mb-2 shadow-sm">
+                        <i class="fa-solid fa-id-card-clip"></i>
+                    </div>
+                    <h2 class="text-2xl sm:text-3xl font-black text-slate-800">準備開始聽力測驗！</h2>
+                    <p class="text-sm sm:text-base font-bold text-slate-500 mt-1">請先選擇你的「班級」與「座號」，再按確認開始考試</p>
+                </div>
+
+                <!-- Step 1: Select Class (一年1班 / 一年2班) -->
+                <div class="bg-amber-50/70 rounded-2xl p-4 sm:p-5 border-2 border-amber-200">
+                    <label class="block text-base sm:text-lg font-black text-slate-700 mb-3 flex items-center gap-2">
+                        <span class="w-7 h-7 rounded-full bg-amber-500 text-white text-sm flex items-center justify-center">1</span>
+                        <span>請選擇班級：</span>
+                    </label>
+                    <div class="grid grid-cols-2 gap-3 sm:gap-4">
+                        <button type="button" onclick="selectLoginClass('一年1班')" id="class-btn-1" class="py-4 px-4 rounded-2xl font-black text-lg sm:text-2xl border-4 transition-all flex items-center justify-center gap-2 bg-sky-500 text-white border-sky-600 shadow-md scale-[1.02]">
+                            <i class="fa-solid fa-school"></i>
+                            <span>一年1班</span>
+                        </button>
+                        <button type="button" onclick="selectLoginClass('一年2班')" id="class-btn-2" class="py-4 px-4 rounded-2xl font-black text-lg sm:text-2xl border-4 transition-all flex items-center justify-center gap-2 bg-white text-slate-700 border-slate-200 hover:border-sky-300">
+                            <i class="fa-solid fa-school"></i>
+                            <span>一年2班</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Select Seat Number (1 ~ 25) -->
+                <div class="bg-sky-50/70 rounded-2xl p-4 sm:p-5 border-2 border-sky-200">
+                    <div class="flex items-center justify-between mb-3">
+                        <label class="text-base sm:text-lg font-black text-slate-700 flex items-center gap-2">
+                            <span class="w-7 h-7 rounded-full bg-sky-500 text-white text-sm flex items-center justify-center">2</span>
+                            <span>請點選你的座號（1 ～ 25 號）：</span>
+                        </label>
+                        <span id="login-selected-preview" class="text-xs sm:text-sm font-black bg-white text-sky-700 px-3 py-1 rounded-full border border-sky-200 shadow-sm">
+                            尚未選擇座號
+                        </span>
+                    </div>
+                    <div id="seat-grid" class="grid grid-cols-5 sm:grid-cols-5 gap-2 sm:gap-2.5">
+                        <!-- Dynamically populated 1 ~ 25 seat buttons -->
+                    </div>
+                </div>
+
+                <!-- Warning message if seat not chosen -->
+                <div id="login-error-msg" class="hidden text-center text-rose-600 font-black text-sm sm:text-base bg-rose-50 border-2 border-rose-200 py-2 px-4 rounded-2xl">
+                    <i class="fa-solid fa-circle-exclamation mr-1"></i>請先點選你的「座號」才能開始考試喔！
+                </div>
+
+                <!-- Step 3: Confirm & Start Button -->
+                <button type="button" onclick="confirmAndStartExam()" class="w-full py-4 px-6 rounded-2xl btn-3d-emerald text-white font-black text-xl sm:text-2xl flex items-center justify-center gap-3 shadow-lg">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span id="btn-confirm-start-text">確認，開始考試！</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- ==================== VIEW 1: LISTENING QUIZ MODE ==================== -->
+        <section id="view-quiz" class="hidden flex-1 flex flex-col gap-4">
+            
+            <!-- Current Examinee Info Bar -->
+            <div class="bg-gradient-to-r from-amber-50 to-sky-50 rounded-3xl p-3 sm:px-5 border-4 border-amber-300 shadow-sm flex flex-wrap items-center justify-between gap-2">
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="bg-amber-500 text-white text-xs sm:text-sm font-black px-3 py-1.5 rounded-2xl flex items-center gap-1.5 shadow-sm">
+                        <i class="fa-solid fa-user-graduate"></i>
+                        <span>目前應考學生：</span>
+                    </span>
+                    <span id="active-student-badge" class="text-base sm:text-xl font-black text-slate-800 bg-white px-4 py-1 rounded-2xl border-2 border-amber-300 shadow-sm">
+                        一年1班 1號
+                    </span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="showLoginScreen()" class="text-xs sm:text-sm font-black text-amber-900 bg-amber-200/80 hover:bg-amber-300 px-3 py-1.5 rounded-xl transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-rotate"></i>
+                        <span>重選班級座號</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Control Bar: Category Filter, Question Mode & Score Bar -->
+            <div class="bg-white rounded-3xl p-3 sm:p-4 border-4 border-amber-200 shadow-sm flex flex-wrap items-center justify-between gap-2">
+                <!-- Row / Scope Selector -->
+                <div class="flex flex-wrap items-center gap-1.5">
+                    <span class="text-xs sm:text-sm font-black text-slate-500 mr-1"><i class="fa-solid fa-layer-group text-amber-500 mr-1"></i>範圍：</span>
+                    <button onclick="setScope('all')" id="scope-all" class="scope-btn px-2.5 py-1 rounded-xl text-xs sm:text-sm font-black bg-amber-400 text-slate-900 shadow-sm">全部(37)</button>
+                    <button onclick="setScope('row1')" id="scope-row1" class="scope-btn px-2.5 py-1 rounded-xl text-xs sm:text-sm font-bold bg-slate-100 text-slate-600 hover:bg-amber-100">第一排(ㄅ~ㄌ)</button>
+                    <button onclick="setScope('row2')" id="scope-row2" class="scope-btn px-2.5 py-1 rounded-xl text-xs sm:text-sm font-bold bg-slate-100 text-slate-600 hover:bg-amber-100">第二排(ㄍ~ㄖ)</button>
+                    <button onclick="setScope('row3')" id="scope-row3" class="scope-btn px-2.5 py-1 rounded-xl text-xs sm:text-sm font-bold bg-slate-100 text-slate-600 hover:bg-amber-100">第三排(ㄗ~ㄝ)</button>
+                    <button onclick="setScope('row4')" id="scope-row4" class="scope-btn px-2.5 py-1 rounded-xl text-xs sm:text-sm font-bold bg-slate-100 text-slate-600 hover:bg-amber-100">第四排(ㄞ~ㄦ)</button>
+                </div>
+
+                <!-- Pure Listening Mode Badge -->
+                <div class="flex items-center gap-2 ml-auto">
+                    <span class="text-xs sm:text-sm font-black text-sky-700 flex items-center gap-1.5 bg-sky-50 px-3 py-1.5 rounded-xl border border-sky-200">
+                        <i class="fa-solid fa-headphones text-sky-500"></i>
+                        <span>純聽力測驗模式（無圖文提示）</span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Progress & Stars Bar -->
+            <div class="bg-white rounded-3xl p-3 sm:px-6 border-4 border-sky-200 shadow-sm flex items-center justify-between gap-4">
+                <div class="flex items-center gap-2 sm:gap-3 flex-1">
+                    <span id="question-counter" class="bg-sky-500 text-white font-black px-3 py-1 rounded-2xl text-sm sm:text-base whitespace-nowrap shadow-sm">
+                        第 1 / 10 題
+                    </span>
+                    <div class="w-full bg-slate-100 h-4 rounded-full overflow-hidden border border-slate-200 p-0.5">
+                        <div id="progress-bar" class="bg-gradient-to-r from-sky-400 to-emerald-400 h-full rounded-full transition-all duration-300" style="width: 10%"></div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-1.5 bg-amber-50 border-2 border-amber-300 px-3 py-1 rounded-2xl">
+                    <i class="fa-solid fa-clipboard-check text-amber-500 text-base sm:text-lg"></i>
+                    <span class="font-black text-xs sm:text-sm text-amber-800">10題全部答完才公布答案</span>
+                </div>
+            </div>
+
+            <!-- Main Question Card & Options Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 flex-1 items-stretch">
+                
+                <!-- Left / Top: Audio Prompt & Animal Card -->
+                <div class="lg:col-span-5 bg-white rounded-3xl p-5 sm:p-6 border-4 border-amber-300 shadow-md flex flex-col items-center justify-between text-center relative overflow-hidden">
+                    <!-- Decorative Corner Ribbon -->
+                    <div class="w-full flex items-center justify-between text-xs font-bold text-slate-400 mb-1">
+                        <span id="current-row-badge" class="bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full font-black">第一排</span>
+                        <span>點喇叭聽題目</span>
+                    </div>
+
+                    <!-- Big Play Audio Button -->
+                    <div class="my-2 flex flex-col items-center">
+                        <button id="btn-play-prompt" onclick="playCurrentQuestionAudio()" class="w-28 h-28 sm:w-32 sm:h-32 rounded-full btn-3d-sky text-white flex flex-col items-center justify-center gap-1 focus:outline-none">
+                            <i class="fa-solid fa-volume-high text-4xl sm:text-5xl"></i>
+                            <span class="text-xs sm:text-sm font-black tracking-wider mt-1">再聽一次</span>
+                        </button>
+                    </div>
+
+                    <!-- Pure Listening Prompt Card (No Animal Image, No Chinese Characters) -->
+                    <div id="question-visual-box" class="w-full bg-amber-50/70 rounded-2xl p-4 sm:p-5 border-2 border-dashed border-amber-300 my-2 flex flex-col items-center justify-center min-h-[140px] transition-all">
+                        <div class="w-14 h-14 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center text-3xl mb-2 shadow-inner">
+                            <i class="fa-solid fa-ear-listen"></i>
+                        </div>
+                        <div id="animal-word-stage" class="text-base sm:text-lg font-black text-slate-700">
+                            請仔細聽聲音，選出正確的注音
+                        </div>
+                        <p id="chant-preview-text" class="text-xs sm:text-sm text-amber-800 font-bold mt-2 bg-amber-200/60 px-3 py-1 rounded-full">
+                            🔊 點擊上方藍色喇叭可重覆聽題目
+                        </p>
+                    </div>
+
+                    <!-- Slow Audio & Replay Buttons -->
+                    <div class="w-full grid grid-cols-2 gap-2 mt-2">
+                        <button onclick="playCurrentQuestionAudio(0.85)" class="py-2.5 px-3 rounded-2xl bg-sky-50 hover:bg-sky-100 text-sky-800 font-black text-xs sm:text-sm border-2 border-sky-200 flex items-center justify-center gap-1.5 active:scale-95 transition">
+                            <i class="fa-solid fa-volume-high text-sky-600"></i>
+                            <span>正常速度</span>
+                        </button>
+                        <button onclick="playCurrentQuestionAudio(0.6)" class="py-2.5 px-3 rounded-2xl bg-amber-50 hover:bg-amber-100 text-amber-900 font-black text-xs sm:text-sm border-2 border-amber-200 flex items-center justify-center gap-1.5 active:scale-95 transition">
+                            <i class="fa-solid fa-turtle text-amber-600"></i>
+                            <span>慢速聽題目</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right / Bottom: 3 Big Zhuyin Word Choices -->
+                <div class="lg:col-span-7 flex flex-col justify-between gap-4">
+                    <div class="bg-white/90 rounded-3xl p-4 sm:p-6 border-4 border-sky-200 shadow-md flex-1 flex flex-col justify-between">
+                        <div class="flex items-center justify-between mb-3">
+                            <h2 class="text-base sm:text-lg font-black text-slate-700 flex items-center gap-2">
+                                <span class="w-7 h-7 rounded-full bg-sky-500 text-white inline-flex items-center justify-center text-sm">?</span>
+                                請從三個選項中選出正確的「動物注音」：
+                            </h2>
+                            <span id="feedback-badge" class="hidden px-3 py-1 rounded-full text-sm font-black"></span>
+                        </div>
+
+                        <!-- 3 Choices of Full Animal Zhuyin -->
+                        <div id="options-grid" class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 my-auto py-2">
+                            <!-- Dynamically generated 3 choice buttons -->
+                        </div>
+
+                        <!-- Next Question / Feedback Bar -->
+                        <div class="mt-4 pt-3 border-t-2 border-slate-100 flex items-center justify-between gap-3">
+                            <div id="feedback-message" class="text-sm sm:text-base font-black text-slate-500 flex items-center gap-2">
+                                <i class="fa-regular fa-hand-point-up text-sky-500"></i>
+                                <span>聽完題目後，點選上面的注音符號！</span>
+                            </div>
+                            <button id="btn-next-question" onclick="nextQuestion()" class="hidden px-6 py-3 rounded-2xl btn-3d-emerald text-white font-black text-base sm:text-lg flex items-center gap-2 whitespace-nowrap">
+                                <span>下一題</span>
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Quiz Result & Detailed Answer Review Modal -->
+    <div id="modal-result" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] flex flex-col p-5 sm:p-7 border-4 border-amber-400 shadow-2xl">
+            <div class="text-center">
+                <div class="w-20 h-20 mx-auto rounded-full bg-amber-100 border-4 border-amber-300 flex items-center justify-center text-4xl mb-2 shadow-inner" id="result-trophy">
+                    🏆
+                </div>
+                <h3 class="text-2xl sm:text-3xl font-black text-slate-800" id="result-title">測驗完成！公布答案</h3>
+                <p class="text-xs sm:text-sm text-slate-500 font-bold mt-1" id="result-subtitle">來看看這 10 題的作答結果吧！（每題 2 分，滿分 20 分）</p>
+            </div>
+
+            <div class="bg-amber-50 rounded-2xl p-3 sm:p-4 border-2 border-amber-200 my-4 grid grid-cols-2 gap-3 text-center">
+                <div>
+                    <div class="text-xs font-bold text-slate-500">測驗總分（滿分 20 分）</div>
+                    <div class="text-2xl sm:text-3xl font-black text-amber-600 mt-0.5 flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-star text-amber-400"></i>
+                        <span id="final-stars">20</span>
+                        <span class="text-sm font-bold text-amber-700">/ 20 分</span>
+                    </div>
+                </div>
+                <div>
+                    <div class="text-xs font-bold text-slate-500">答對題數（1題2分）</div>
+                    <div class="text-2xl sm:text-3xl font-black text-emerald-600 mt-0.5" id="final-accuracy">10 / 10</div>
+                </div>
+            </div>
+
+            <!-- Answer Review List -->
+            <div class="flex-1 overflow-y-auto pr-1 space-y-2.5 mb-4" id="result-review-list">
+                <!-- Dynamically populated with each question's result -->
+            </div>
+
+            <div class="pt-2 border-t-2 border-slate-100 flex flex-col sm:flex-row gap-3">
+                <button onclick="openScoreboardFromResult()" class="sm:w-1/3 py-3.5 px-4 rounded-2xl bg-amber-100 hover:bg-amber-200 text-amber-900 border-2 border-amber-300 font-black text-base flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-list-check"></i>
+                    <span>查看成績紀錄</span>
+                </button>
+                <button id="btn-next-student-action" onclick="closeResultAndNextStudent()" class="sm:w-2/3 py-3.5 px-5 rounded-2xl btn-3d-sky text-white font-black text-lg flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span>下一位同學（回班級座號選擇）</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Class Scoreboard Modal (Replaces Batch Roster Modal) -->
+    <div id="modal-scoreboard" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] flex flex-col p-5 sm:p-6 border-4 border-emerald-400 shadow-2xl">
+            <div class="flex items-center justify-between border-b-2 border-slate-100 pb-3 mb-4">
+                <div>
+                    <h3 class="text-xl sm:text-2xl font-black text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-trophy text-emerald-500"></i>
+                        <span>測驗成績紀錄表</span>
+                    </h3>
+                    <p class="text-xs sm:text-sm text-slate-500 font-bold mt-0.5">顯示目前已考完試的班級、座號與得分（可匯出 Excel CSV）</p>
+                </div>
+                <button onclick="closeScoreboardModal()" class="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                <span id="scoreboard-summary" class="text-xs sm:text-sm bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full font-black">
+                    共 0 筆測驗紀錄
+                </span>
+                <div class="flex items-center gap-2">
+                    <button onclick="exportScoresCSV()" class="px-3.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs sm:text-sm flex items-center gap-1.5 shadow-sm transition">
+                        <i class="fa-solid fa-download"></i>
+                        <span>匯出成績 CSV</span>
+                    </button>
+                    <button onclick="clearScoreRecords()" class="px-3 py-1.5 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-700 font-black text-xs sm:text-sm flex items-center gap-1 transition">
+                        <i class="fa-solid fa-trash-can"></i>
+                        <span>清空紀錄</span>
+                    </button>
+                </div>
+            </div>
+
+            <div id="scoreboard-list" class="flex-1 overflow-y-auto space-y-2 pr-1 my-1">
+                <!-- Dynamically populated score records -->
+            </div>
+
+            <div class="mt-4 pt-3 border-t-2 border-slate-100 flex items-center justify-between">
+                <span id="scoreboard-feedback-msg" class="text-xs sm:text-sm font-black text-emerald-600"></span>
+                <button onclick="closeScoreboardModal()" class="px-6 py-2.5 rounded-2xl bg-slate-800 hover:bg-slate-900 text-white font-black text-sm sm:text-base">
+                    關閉視窗
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings & Audio Voice Selector Modal -->
+    <div id="modal-settings" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 border-4 border-sky-300 shadow-2xl">
+            <div class="flex items-center justify-between border-b-2 border-slate-100 pb-3 mb-4">
+                <h3 class="text-xl font-black text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-sky-500"></i>
+                    <span>語音與測驗設定</span>
+                </h3>
+                <button onclick="closeSettingsModal()" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="space-y-4 text-sm font-bold text-slate-700">
+                <!-- Question Count -->
+                <div>
+                    <label class="block text-slate-600 mb-1.5 font-black">📝 每次測驗題數（預設隨機 10 題，每題 2 分）：</label>
+                    <div class="grid grid-cols-4 gap-2">
+                        <button onclick="setQuizLength(5)" id="qlen-5" class="qlen-btn py-2 rounded-xl border-2 border-slate-200 font-black">5 題</button>
+                        <button onclick="setQuizLength(10)" id="qlen-10" class="qlen-btn py-2 rounded-xl border-2 border-sky-500 bg-sky-50 text-sky-700 font-black">10 題</button>
+                        <button onclick="setQuizLength(20)" id="qlen-20" class="qlen-btn py-2 rounded-xl border-2 border-slate-200 font-black">20 題</button>
+                        <button onclick="setQuizLength(37)" id="qlen-37" class="qlen-btn py-2 rounded-xl border-2 border-slate-200 font-black">37 題</button>
+                    </div>
+                </div>
+
+                <!-- Voice Selection -->
+                <div>
+                    <label class="block text-slate-600 mb-1.5 font-black">🗣️ 選擇國語語音（依裝置內建）：</label>
+                    <select id="setting-voice-select" onchange="testSelectedVoice()" class="w-full p-3 rounded-2xl border-2 border-slate-200 bg-slate-50 font-bold text-slate-800">
+                        <option value="">自動選擇最佳台灣國語 (zh-TW)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mt-6 pt-3 border-t-2 border-slate-100 flex justify-end">
+                <button onclick="closeSettingsModal()" class="px-6 py-2.5 rounded-2xl btn-3d-sky text-white font-black">
+                    完成設定
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * Complete 37 Bopomofo symbols & animal words matching the exact uploaded worksheet:
+         * Row 1 (ㄅ~ㄌ, 8 items): 斑馬, 螃蟹, 螞蟻, 飛鼠, 袋鼠, 鴕鳥, 小鳥, 梅花鹿
+         * Row 2 (ㄍ~ㄖ, 10 items): 鴿子, 蝌蚪, 河豚, 公雞, 企鵝, 犀牛, 蜘蛛, 長頸鹿, 獅子, 乳牛
+         * Row 3 (ㄗ~ㄝ, 10 items): 烏賊, 刺蝟, 鷺鷥, 蜥蜴, 烏鴉, 金魚, 鯊魚, 土撥鼠, 天鵝, 野狼
+         * Row 4 (ㄞ~ㄦ, 9 items): 海豚, 黑面琵鷺, 毛毛蟲, 海鷗, 山羊, 糞金龜, 螳螂, 蜜蜂, 耳朵
+         */
+        const ZHUYIN_DATA = [
+            // ==================== 第一排 (ㄅ ~ ㄌ) ====================
+            {
+                id: 'b', symbol: 'ㄅ', speakSymbol: 'ㄅㄛ', word: '斑馬', emoji: '🦓', row: 'row1', rowName: '第一排',
+                chars: [
+                    { c: '斑', z: ['ㄅ', 'ㄢ'], t: '' },
+                    { c: '馬', z: ['ㄇ', 'ㄚ'], t: 'ˇ' }
+                ]
+            },
+            {
+                id: 'p', symbol: 'ㄆ', speakSymbol: 'ㄆㄛ', word: '螃蟹', emoji: '🦀', row: 'row1', rowName: '第一排',
+                chars: [
+                    { c: '螃', z: ['ㄆ', 'ㄤ'], t: 'ˊ' },
+                    { c: '蟹', z: ['ㄒ', 'ㄧ', 'ㄝ'], t: 'ˋ' }
+                ]
+            },
+            {
+                id: 'm', symbol: 'ㄇ', speakSymbol: 'ㄇㄛ', word: '螞蟻', emoji: '🐜', row: 'row1', rowName: '第一排',
+                chars: [
+                    { c: '螞', z: ['ㄇ', 'ㄚ'], t: 'ˇ' },
+                    { c: '蟻', z: ['ㄧ'], t: 'ˇ' }
+                ]
+            },
+            {
+                id: 'f', symbol: 'ㄈ', speakSymbol: 'ㄈㄛ', word: '飛鼠', emoji: '🐿️', row: 'row1', rowName: '第一排',
+                chars: [
+                    { c: '飛', z: ['ㄈ', 'ㄟ'], t: '' },
+                    { c: '鼠', z: ['ㄕ', 'ㄨ'], t: 'ˇ' }
+                ]
+            },
+            {
+                id: 'd', symbol: 'ㄉ', speakSymbol: 'ㄉㄜ', word: '袋鼠', emoji: '🦘', row: 'row1', rowName: '第一排',
+                chars: [
+                    { c: '袋', z: ['ㄉ', 'ㄞ'], t: 'ˋ' },
+                    { c: '鼠', z: ['ㄕ', 'ㄨ'], t: 'ˇ' }
+                ]
+            },
+            {
+                id: 't', symbol: 'ㄊ', speakSymbol: 'ㄊㄜ', word: '鴕鳥', emoji: '🦤', row: 'row1', rowName: '第一排',
+                chars: [
+                    { c: '鴕', z: ['ㄊ', 'ㄨ', 'ㄛ'], t: 'ˊ' },
+                    { c: '鳥', z: ['ㄋ', 'ㄧ', 'ㄠ'], t: 'ˇ' }
+                ]
+            },
+            {
+                id: 'n', symbol: 'ㄋ', speakSymbol: 'ㄋㄜ', word: '小鳥', emoji: '🐦', row: 'row1', rowName: '第一排',
+                chars: [
+                    { c: '小', z: ['ㄒ', 'ㄧ', 'ㄠ'], t: 'ˇ' },
+                    { c: '鳥', z: ['ㄋ', 'ㄧ', 'ㄠ'], t: 'ˇ' }
+                ]
+            },
+            {
+                id: 'l', symbol: 'ㄌ', speakSymbol: 'ㄌㄜ', word: '梅花鹿', emoji: '🦌', row: 'row1', rowName: '第一排',
+                chars: [
+                    { c: '梅', z: ['ㄇ', 'ㄟ'], t: 'ˊ' },
+                    { c: '花', z: ['ㄏ', 'ㄨ', 'ㄚ'], t: '' },
+                    { c: '鹿', z: ['ㄌ', 'ㄨ'], t: 'ˋ' }
+                ]
+            },
+
+            // ==================== 第二排 (ㄍ ~ ㄖ) ====================
+            {
+                id: 'g', symbol: 'ㄍ', speakSymbol: 'ㄍㄜ', word: '鴿子', emoji: '🕊️', row: 'row2', rowName: '第二排',
+                chars: [
+                    { c: '鴿', z: ['ㄍ', 'ㄜ'], t: '' },
+                    { c: '子', z: ['ㄗ'], t: '˙' }
+                ]
+            },
+            {
+                id: 'k', symbol: 'ㄎ', speakSymbol: 'ㄎㄜ', word: '蝌蚪', emoji: '🐸', row: 'row2', rowName: '第二排',
+                chars: [
+                    { c: '蝌', z: ['ㄎ', 'ㄜ'], t: '' },
+                    { c: '蚪', z: ['ㄉ', 'ㄡ'], t: 'ˇ' }
+                ]
+            },
+            {
+                id: 'h', symbol: 'ㄏ', speakSymbol: 'ㄏㄜ', word: '河豚', emoji: '🐡', row: 'row2', rowName: '第二排',
+                chars: [
+                    { c: '河', z: ['ㄏ', 'ㄜ'], t: 'ˊ' },
+                    { c: '豚', z: ['ㄊ', 'ㄨ', 'ㄣ'], t: 'ˊ' }
+                ]
+            },
+            {
+                id: 'j', symbol: 'ㄐ', speakSymbol: 'ㄐㄧ', word: '公雞', emoji: '🐓', row: 'row2', rowName: '第二排',
+                chars: [
+                    { c: '公', z: ['ㄍ', 'ㄨ', 'ㄥ'], t: '' },
+                    { c: '雞', z: ['ㄐ', 'ㄧ'], t: '' }
+                ]
+            },
+            {
+                id: 'q', symbol: 'ㄑ', speakSymbol: 'ㄑㄧ', word: '企鵝', emoji: '🐧', row: 'row2', rowName: '第二排',
+                chars: [
+                    { c: '企', z: ['ㄑ', 'ㄧ'], t: 'ˋ' },
+                    { c: '鵝', z: ['ㄜ'], t: 'ˊ' }
+                ]
+            },
+            {
+                id: 'x', symbol: 'ㄒ', speakSymbol: 'ㄒㄧ', word: '犀牛', emoji: '🦏', row: 'row2', rowName: '第二排',
+                chars: [
+                    { c: '犀', z: ['ㄒ', 'ㄧ'], t: '' },
+                    { c: '牛', z: ['ㄋ', 'ㄧ', 'ㄡ'], t: 'ˊ' }
+                ]
+            },
+            {
+                id: 'zh', symbol: 'ㄓ', speakSymbol: 'ㄓ', word: '蜘蛛', emoji: '🕷️', row: 'row2', rowName: '第二排',
+                chars: [
+                    { c: '蜘', z: ['ㄓ'], t: '' },
+                    { c: '蛛', z: ['ㄓ', 'ㄨ'], t: '' }
+                ]
+            },
+            {
+                id: 'ch', symbol: 'ㄔ', speakSymbol: 'ㄔ', word: '長頸鹿', emoji: '🦒', row: 'row2', rowName: '第二排',
+                chars: [
+                    { c: '長', z: ['ㄔ', 'ㄤ'], t: 'ˊ' },
+                    { c: '頸', z: ['ㄐ', 'ㄧ', 'ㄥ'], t: 'ˇ' },
+                    { c: '鹿', z: ['ㄌ', 'ㄨ'], t: 'ˋ' }
+                ]
+            },
+            {
+                id: 'sh', symbol: 'ㄕ', speakSymbol: 'ㄕ', word: '獅子', emoji: '🦁', row: 'row2', rowName: '第二排',
+                chars: [
+                    { c: '獅', z: ['ㄕ'], t: '' },
+                    { c: '子', z: ['ㄗ'], t: '˙' }
+                ]
+            },
+            {
+                id: 'r', symbol: 'ㄖ', speakSymbol: 'ㄖ', word: '乳牛', emoji: '🐄', row: 'row2', rowName: '第二排',
+                chars: [
+                    { c: '乳', z: ['ㄖ', 'ㄨ'], t: 'ˇ' },
+                    { c: '牛', z: ['ㄋ', 'ㄧ', 'ㄡ'], t: 'ˊ' }
+                ]
+            },
+
+            // ==================== 第三排 (ㄗ ~ ㄝ) ====================
+            {
+                id: 'z', symbol: 'ㄗ', speakSymbol: 'ㄗ', word: '烏賊', emoji: '🦑', row: 'row3', rowName: '第三排',
+                chars: [
+                    { c: '烏', z: ['ㄨ'], t: '' },
+                    { c: '賊', z: ['ㄗ', 'ㄟ'], t: 'ˊ' }
+                ]
+            },
+            {
+                id: 'c', symbol: 'ㄘ', speakSymbol: 'ㄘ', word: '刺蝟', emoji: '🦔', row: 'row3', rowName: '第三排',
+                chars: [
+                    { c: '刺', z: ['ㄘ'], t: 'ˋ' },
+                    { c: '蝟', z: ['ㄨ', 'ㄟ'], t: 'ˋ' }
+                ]
+            },
+            {
+                id: 's', symbol: 'ㄙ', speakSymbol: 'ㄙ', word: '鷺鷥', emoji: '鹭', row: 'row3', rowName: '第三排',
+                chars: [
+                    { c: '鷺', z: ['ㄌ', 'ㄨ'], t: 'ˋ' },
+                    { c: '鷥', z: ['ㄙ'], t: '' }
+                ]
+            },
+            {
+                id: 'yi', symbol: 'ㄧ', speakSymbol: 'ㄧ', word: '蜥蜴', emoji: '🦎', row: 'row3', rowName: '第三排',
+                chars: [
+                    { c: '蜥', z: ['ㄒ', 'ㄧ'], t: '' },
+                    { c: '蜴', z: ['ㄧ'], t: 'ˋ' }
+                ]
+            },
+            {
+                id: 'wu', symbol: 'ㄨ', speakSymbol: 'ㄨ', word: '烏鴉', emoji: '🐦‍⬛', row: 'row3', rowName: '第三排',
+                chars: [
+                    { c: '烏', z: ['ㄨ'], t: '' },
+                    { c: '鴉', z: ['ㄧ', 'ㄚ'], t: '' }
+                ]
+            },
+            {
+                id: 'yu', symbol: 'ㄩ', speakSymbol: 'ㄩ', word: '金魚', emoji: '🐠', row: 'row3', rowName: '第三排',
+                chars: [
+                    { c: '金', z: ['ㄐ', 'ㄧ', 'ㄣ'], t: '' },
+                    { c: '魚', z: ['ㄩ'], t: 'ˊ' }
+                ]
+            },
+            {
+                id: 'a', symbol: 'ㄚ', speakSymbol: 'ㄚ', word: '鯊魚', emoji: '🦈', row: 'row3', rowName: '第三排',
+                chars: [
+                    { c: '鯊', z: ['ㄕ', 'ㄚ'], t: '' },
+                    { c: '魚', z: ['ㄩ'], t: 'ˊ' }
+                ]
+            },
+            {
+                id: 'o', symbol: 'ㄛ', speakSymbol: 'ㄛ', word: '土撥鼠', emoji: '🦫', row: 'row3', rowName: '第三排',
+                chars: [
+                    { c: '土', z: ['ㄊ', 'ㄨ'], t: 'ˇ' },
+                    { c: '撥', z: ['ㄅ', 'ㄛ'], t: '' },
+                    { c: '鼠', z: ['ㄕ', 'ㄨ'], t: 'ˇ' }
+                ]
+            },
+            {
+                id: 'e', symbol: 'ㄜ', speakSymbol: 'ㄜ', word: '天鵝', emoji: '🦢', row: 'row3', rowName: '第三排',
+                chars: [
+                    { c: '天', z: ['ㄊ', 'ㄧ', 'ㄢ'], t: '' },
+                    { c: '鵝', z: ['ㄜ'], t: 'ˊ' }
+                ]
+            },
+            {
+                id: 'eh', symbol: 'ㄝ', speakSymbol: 'ㄝ', word: '野狼', emoji: '🐺', row: 'row3', rowName: '第三排',
+                chars: [
+                    { c: '野', z: ['ㄧ', 'ㄝ'], t: 'ˇ' },
+                    { c: '狼', z: ['ㄌ', 'ㄤ'], t: 'ˊ' }
+                ]
+            },
+
+            // ==================== 第四排 (ㄞ ~ ㄦ) ====================
+            {
+                id: 'ai', symbol: 'ㄞ', speakSymbol: 'ㄞ', word: '海豚', emoji: '🐬', row: 'row4', rowName: '第四排',
+                chars: [
+                    { c: '海', z: ['ㄏ', 'ㄞ'], t: 'ˇ' },
+                    { c: '豚', z: ['ㄊ', 'ㄨ', 'ㄣ'], t: 'ˊ' }
+                ]
+            },
+            {
+                id: 'ei', symbol: 'ㄟ', speakSymbol: 'ㄟ', word: '黑面琵鷺', emoji: '🦩', row: 'row4', rowName: '第四排',
+                chars: [
+                    { c: '黑', z: ['ㄏ', 'ㄟ'], t: '' },
+                    { c: '面', z: ['ㄇ', 'ㄧ', 'ㄢ'], t: 'ˋ' },
+                    { c: '琵', z: ['ㄆ', 'ㄧ'], t: 'ˊ' },
+                    { c: '鷺', z: ['ㄌ', 'ㄨ'], t: 'ˋ' }
+                ]
+            },
+            {
+                id: 'ao', symbol: 'ㄠ', speakSymbol: 'ㄠ', word: '毛毛蟲', emoji: '🐛', row: 'row4', rowName: '第四排',
+                chars: [
+                    { c: '毛', z: ['ㄇ', 'ㄠ'], t: 'ˊ' },
+                    { c: '毛', z: ['ㄇ', 'ㄠ'], t: 'ˊ' },
+                    { c: '蟲', z: ['ㄔ', 'ㄨ', 'ㄥ'], t: 'ˊ' }
+                ]
+            },
+            {
+                id: 'ou', symbol: 'ㄡ', speakSymbol: 'ㄡ', word: '海鷗', emoji: '🕊️', row: 'row4', rowName: '第四排',
+                chars: [
+                    { c: '海', z: ['ㄏ', 'ㄞ'], t: 'ˇ' },
+                    { c: '鷗', z: ['ㄡ'], t: '' }
+                ]
+            },
+            {
+                id: 'an', symbol: 'ㄢ', speakSymbol: 'ㄢ', word: '山羊', emoji: '🐐', row: 'row4', rowName: '第四排',
+                chars: [
+                    { c: '山', z: ['ㄕ', 'ㄢ'], t: '' },
+                    { c: '羊', z: ['ㄧ', 'ㄤ'], t: 'ˊ' }
+                ]
+            },
+            {
+                id: 'en', symbol: 'ㄣ', speakSymbol: 'ㄣ', word: '糞金龜', emoji: '🪲', row: 'row4', rowName: '第四排',
+                chars: [
+                    { c: '糞', z: ['ㄈ', 'ㄣ'], t: 'ˋ' },
+                    { c: '金', z: ['ㄐ', 'ㄧ', 'ㄣ'], t: '' },
+                    { c: '龜', z: ['ㄍ', 'ㄨ', 'ㄟ'], t: '' }
+                ]
+            },
+            {
+                id: 'ang', symbol: 'ㄤ', speakSymbol: 'ㄤ', word: '螳螂', emoji: '🦗', row: 'row4', rowName: '第四排',
+                chars: [
+                    { c: '螳', z: ['ㄊ', 'ㄤ'], t: 'ˊ' },
+                    { c: '螂', z: ['ㄌ', 'ㄤ'], t: 'ˊ' }
+                ]
+            },
+            {
+                id: 'eng', symbol: 'ㄥ', speakSymbol: 'ㄥ', word: '蜜蜂', emoji: '🐝', row: 'row4', rowName: '第四排',
+                chars: [
+                    { c: '蜜', z: ['ㄇ', 'ㄧ'], t: 'ˋ' },
+                    { c: '蜂', z: ['ㄈ', 'ㄥ'], t: '' }
+                ]
+            },
+            {
+                id: 'er', symbol: 'ㄦ', speakSymbol: 'ㄦ', word: '耳朵', emoji: '👂', row: 'row4', rowName: '第四排',
+                chars: [
+                    { c: '耳', z: ['ㄦ'], t: 'ˇ' },
+                    { c: '朵', z: ['ㄉ', 'ㄨ', 'ㄛ'], t: '˙' }
+                ]
+            }
+        ];
+
+        // Extra 4-character animal distractors so that 4-character words ("黑面琵鷺") also have 4-character Zhuyin choices
+        const EXTRA_4CHAR_ANIMALS = [
+            {
+                id: 'extra_4_1', word: '台灣黑熊', emoji: '🐻',
+                chars: [
+                    { c: '台', z: ['ㄊ', 'ㄞ'], t: 'ˊ' },
+                    { c: '灣', z: ['ㄨ', 'ㄢ'], t: '' },
+                    { c: '黑', z: ['ㄏ', 'ㄟ'], t: '' },
+                    { c: '熊', z: ['ㄒ', 'ㄩ', 'ㄥ'], t: 'ˊ' }
+                ]
+            },
+            {
+                id: 'extra_4_2', word: '國王企鵝', emoji: '🐧',
+                chars: [
+                    { c: '國', z: ['ㄍ', 'ㄨ', 'ㄛ'], t: 'ˊ' },
+                    { c: '王', z: ['ㄨ', 'ㄤ'], t: 'ˊ' },
+                    { c: '企', z: ['ㄑ', 'ㄧ'], t: 'ˋ' },
+                    { c: '鵝', z: ['ㄜ'], t: 'ˊ' }
+                ]
+            },
+            {
+                id: 'extra_4_3', word: '雙峰駱駝', emoji: '🐫',
+                chars: [
+                    { c: '雙', z: ['ㄕ', 'ㄨ', 'ㄤ'], t: '' },
+                    { c: '峰', z: ['ㄈ', 'ㄥ'], t: '' },
+                    { c: '駱', z: ['ㄌ', 'ㄨ', 'ㄛ'], t: 'ˋ' },
+                    { c: '駝', z: ['ㄊ', 'ㄨ', 'ㄛ'], t: 'ˊ' }
+                ]
+            }
+        ];
+
+        let currentScope = 'all';
+        let quizLength = 10;
+
+        let quizQueue = [];
+        let userAnswers = [];
+        let questionChoicesCache = [];
+        let currentIndex = 0;
+        let currentQuestion = null;
+        let selectedOptionChoice = null;
+        let selectedVoice = null;
+
+        // ==================== PRE-EXAM CLASS (一年1班 / 一年2班) & SEAT (1~25) SELECTION ====================
+        let selectedClassName = '一年1班';
+        let selectedSeatNo = null; // 1 ~ 25
+        let examScoreRecords = []; // [{ className, seatNo, score, maxScore, correctCount, totalQuestions, testedAt }]
+
+        function initLoginSeatGrid() {
+            const grid = document.getElementById('seat-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            for (let i = 1; i <= 25; i++) {
+                const isSelected = selectedSeatNo === i;
+                // Check if this class + seat already took the test
+                const alreadyTested = examScoreRecords.find(
+                    r => r.className === selectedClassName && r.seatNo === i
+                );
+
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.onclick = () => selectLoginSeat(i);
+
+                if (isSelected) {
+                    btn.className = 'py-3 sm:py-3.5 rounded-2xl font-black text-base sm:text-xl bg-sky-500 text-white border-4 border-sky-700 shadow-md scale-105 transition-all flex flex-col items-center justify-center';
+                } else if (alreadyTested) {
+                    btn.className = 'py-3 sm:py-3.5 rounded-2xl font-black text-base sm:text-xl bg-emerald-50 text-emerald-800 border-2 border-emerald-300 hover:border-sky-400 transition-all flex flex-col items-center justify-center';
+                } else {
+                    btn.className = 'py-3 sm:py-3.5 rounded-2xl font-black text-base sm:text-xl bg-white text-slate-700 border-2 border-slate-200 hover:border-sky-400 hover:bg-sky-50/50 transition-all flex flex-col items-center justify-center shadow-sm';
+                }
+
+                btn.innerHTML = `
+                    <span>${i}號</span>
+                    ${alreadyTested ? `<span class="text-[10px] font-bold px-1.5 rounded bg-emerald-200/80 text-emerald-900 mt-0.5">已考(${alreadyTested.score}分)</span>` : ''}
+                `;
+                grid.appendChild(btn);
+            }
+
+            updateLoginSelectionPreview();
+        }
+
+        function selectLoginClass(className) {
+            selectedClassName = className;
+            const btn1 = document.getElementById('class-btn-1');
+            const btn2 = document.getElementById('class-btn-2');
+
+            if (className === '一年1班') {
+                btn1.className = 'py-4 px-4 rounded-2xl font-black text-lg sm:text-2xl border-4 transition-all flex items-center justify-center gap-2 bg-sky-500 text-white border-sky-600 shadow-md scale-[1.02]';
+                btn2.className = 'py-4 px-4 rounded-2xl font-black text-lg sm:text-2xl border-4 transition-all flex items-center justify-center gap-2 bg-white text-slate-700 border-slate-200 hover:border-sky-300';
+            } else {
+                btn2.className = 'py-4 px-4 rounded-2xl font-black text-lg sm:text-2xl border-4 transition-all flex items-center justify-center gap-2 bg-sky-500 text-white border-sky-600 shadow-md scale-[1.02]';
+                btn1.className = 'py-4 px-4 rounded-2xl font-black text-lg sm:text-2xl border-4 transition-all flex items-center justify-center gap-2 bg-white text-slate-700 border-slate-200 hover:border-sky-300';
+            }
+
+            playEffectSound('select');
+            initLoginSeatGrid();
+        }
+
+        function selectLoginSeat(seatNum) {
+            selectedSeatNo = seatNum;
+            document.getElementById('login-error-msg').classList.add('hidden');
+            playEffectSound('select');
+            initLoginSeatGrid();
+        }
+
+        function updateLoginSelectionPreview() {
+            const previewEl = document.getElementById('login-selected-preview');
+            const confirmTextEl = document.getElementById('btn-confirm-start-text');
+            if (selectedSeatNo) {
+                previewEl.textContent = `已選擇：${selectedClassName} ${selectedSeatNo}號`;
+                previewEl.className = 'text-xs sm:text-sm font-black bg-sky-500 text-white px-3.5 py-1 rounded-full shadow-sm';
+                confirmTextEl.textContent = `確認（${selectedClassName} ${selectedSeatNo}號），開始考試！`;
+            } else {
+                previewEl.textContent = `${selectedClassName} — 尚未選擇座號`;
+                previewEl.className = 'text-xs sm:text-sm font-black bg-white text-sky-700 px-3 py-1 rounded-full border border-sky-200 shadow-sm';
+                confirmTextEl.textContent = '確認，開始考試！';
+            }
+        }
+
+        function confirmAndStartExam() {
+            if (!selectedSeatNo) {
+                const errEl = document.getElementById('login-error-msg');
+                errEl.classList.remove('hidden');
+                return;
+            }
+
+            // Switch from Login View to Quiz View
+            document.getElementById('view-login').classList.add('hidden');
+            document.getElementById('view-quiz').classList.remove('hidden');
+
+            // Update active student badge
+            const badge = document.getElementById('active-student-badge');
+            if (badge) {
+                badge.textContent = `${selectedClassName} ${selectedSeatNo}號`;
+            }
+
+            startNewQuiz();
+        }
+
+        function showLoginScreen() {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+            document.getElementById('modal-result').classList.add('hidden');
+            document.getElementById('view-quiz').classList.add('hidden');
+            document.getElementById('view-login').classList.remove('hidden');
+            initLoginSeatGrid();
+        }
+
+        function renderScoreboardUI() {
+            const badge = document.getElementById('score-count-badge');
+            if (badge) badge.textContent = `${examScoreRecords.length}筆`;
+
+            const summary = document.getElementById('scoreboard-summary');
+            if (summary) summary.textContent = `共 ${examScoreRecords.length} 筆測驗紀錄`;
+
+            const listEl = document.getElementById('scoreboard-list');
+            if (!listEl) return;
+
+            if (examScoreRecords.length === 0) {
+                listEl.innerHTML = `
+                    <div class="h-44 flex flex-col items-center justify-center text-slate-400 text-center p-4">
+                        <i class="fa-solid fa-clipboard-list text-3xl mb-2 text-slate-300"></i>
+                        <p class="font-black text-sm">目前尚無任何測驗成績紀錄</p>
+                        <p class="text-xs font-bold mt-1">學生完成 10 題測驗交卷後，成績會自動記錄於此</p>
+                    </div>
+                `;
+                return;
+            }
+
+            listEl.innerHTML = '';
+            examScoreRecords.forEach((rec, idx) => {
+                const row = document.createElement('div');
+                row.className = 'p-3 rounded-2xl border-2 border-slate-200 bg-slate-50 flex items-center justify-between gap-2';
+                row.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="w-7 h-7 rounded-full bg-emerald-500 text-white text-xs font-black flex items-center justify-center">
+                            ${idx + 1}
+                        </span>
+                        <div>
+                            <div class="font-black text-slate-800 text-sm sm:text-base flex items-center gap-2">
+                                <span class="bg-amber-100 text-amber-900 px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black">${rec.className}</span>
+                                <span>${rec.seatNo}號</span>
+                            </div>
+                            <div class="text-xs text-slate-400 font-bold mt-0.5">測驗時間：${rec.testedAt}</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-slate-500">答對 ${rec.correctCount}/${rec.totalQuestions} 題</span>
+                        <span class="px-3 py-1 rounded-xl bg-emerald-100 text-emerald-800 font-black text-sm sm:text-base border border-emerald-300">
+                            ${rec.score} / ${rec.maxScore} 分
+                        </span>
+                    </div>
+                `;
+                listEl.appendChild(row);
+            });
+        }
+
+        function openScoreboardModal() {
+            renderScoreboardUI();
+            document.getElementById('scoreboard-feedback-msg').textContent = '';
+            document.getElementById('modal-scoreboard').classList.remove('hidden');
+        }
+
+        function closeScoreboardModal() {
+            document.getElementById('modal-scoreboard').classList.add('hidden');
+        }
+
+        function openScoreboardFromResult() {
+            document.getElementById('modal-result').classList.add('hidden');
+            openScoreboardModal();
+        }
+
+        function clearScoreRecords() {
+            examScoreRecords = [];
+            renderScoreboardUI();
+            initLoginSeatGrid();
+            const msgEl = document.getElementById('scoreboard-feedback-msg');
+            msgEl.textContent = '🗑️ 已清空所有測驗成績紀錄。';
+            msgEl.className = 'text-xs sm:text-sm font-black text-slate-500';
+        }
+
+        function exportScoresCSV() {
+            const msgEl = document.getElementById('scoreboard-feedback-msg');
+            if (examScoreRecords.length === 0) {
+                msgEl.textContent = '⚠️ 目前沒有成績紀錄可匯出！';
+                msgEl.className = 'text-xs sm:text-sm font-black text-rose-600';
+                return;
+            }
+
+            const headers = ['序號', '班級', '座號', '得分', '滿分', '答對題數', '總題數', '測驗時間'];
+            const rows = examScoreRecords.map((rec, i) => [
+                i + 1,
+                `"${rec.className}"`,
+                `"${rec.seatNo}號"`,
+                rec.score,
+                rec.maxScore,
+                rec.correctCount,
+                rec.totalQuestions,
+                `"${rec.testedAt}"`
+            ]);
+
+            const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(r => r.join(','))].join('\r\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            const dateStr = new Date().toISOString().slice(0, 10);
+            link.download = `小一注音聽力測驗成績單_${dateStr}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            msgEl.textContent = '📊 已成功匯出成績單 CSV 檔！';
+            msgEl.className = 'text-xs sm:text-sm font-black text-emerald-600';
+        }
+
+        // Web Audio Context for subtle click sound
+        let audioCtx = null;
+        function getAudioCtx() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        function playEffectSound(type) {
+            try {
+                const ctx = getAudioCtx();
+                const now = ctx.currentTime;
+                if (type === 'select') {
+                    // Neutral soft pop sound when selecting an option
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(440, now);
+                    osc.frequency.exponentialRampToValueAtTime(580, now + 0.08);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.1);
+                } else if (type === 'finish') {
+                    // Fanfare chime when finishing all 5 questions
+                    const notes = [523.25, 659.25, 783.99, 1046.50];
+                    notes.forEach((freq, idx) => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(freq, now + idx * 0.085);
+                        gain.gain.setValueAtTime(0.22, now + idx * 0.085);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.085 + 0.3);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(now + idx * 0.085);
+                        osc.stop(now + idx * 0.085 + 0.32);
+                    });
+                }
+            } catch (e) {
+                // Ignore audio context errors on restricted devices
+            }
+        }
+
+        function initVoices() {
+            if (!('speechSynthesis' in window)) return;
+            const voices = window.speechSynthesis.getVoices();
+            const selectEl = document.getElementById('setting-voice-select');
+            if (!selectEl) return;
+
+            const zhVoices = voices.filter(v => v.lang.includes('zh') || v.lang.includes('cmn'));
+            if (zhVoices.length > 0) {
+                selectEl.innerHTML = '';
+                // Prioritize zh-TW (Taiwan Mandarin)
+                zhVoices.sort((a, b) => {
+                    const aTW = a.lang.toLowerCase().includes('tw') || a.name.includes('Taiwan') || a.name.includes('臺灣') || a.name.includes('台灣');
+                    const bTW = b.lang.toLowerCase().includes('tw') || b.name.includes('Taiwan') || b.name.includes('臺灣') || b.name.includes('台灣');
+                    return (bTW ? 1 : 0) - (aTW ? 1 : 0);
+                });
+
+                zhVoices.forEach((v, idx) => {
+                    const opt = document.createElement('option');
+                    opt.value = v.name;
+                    opt.textContent = `${v.name} (${v.lang})`;
+                    selectEl.appendChild(opt);
+                    if (idx === 0 && !selectedVoice) {
+                        selectedVoice = v;
+                    }
+                });
+            }
+        }
+
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.onvoiceschanged = initVoices;
+            setTimeout(initVoices, 300);
+        }
+
+        function speakMandarin(text, rate = 0.85) {
+            if (!('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+
+            const utter = new SpeechSynthesisUtterance(text);
+            utter.lang = 'zh-TW';
+            utter.rate = rate;
+            utter.pitch = 1.05;
+
+            const voiceName = document.getElementById('setting-voice-select')?.value;
+            const voices = window.speechSynthesis.getVoices();
+            if (voiceName) {
+                const match = voices.find(v => v.name === voiceName);
+                if (match) utter.voice = match;
+            } else if (selectedVoice) {
+                utter.voice = selectedVoice;
+            }
+
+            const playBtn = document.getElementById('btn-play-prompt');
+            utter.onstart = () => {
+                if (playBtn) playBtn.classList.add('speaker-playing');
+            };
+            utter.onend = () => {
+                if (playBtn) playBtn.classList.remove('speaker-playing');
+            };
+            utter.onerror = () => {
+                if (playBtn) playBtn.classList.remove('speaker-playing');
+            };
+
+            window.speechSynthesis.speak(utter);
+        }
+
+        function renderOptionWordZhuyinHTML(item) {
+            const syllablesHTML = item.chars.map(ch => {
+                const isNeutral = ch.t === '˙';
+                const symbolsHTML = ch.z.map(sym => `<span>${sym}</span>`).join('');
+
+                return `
+                    <div class="zhuyin-syllable">
+                        <div class="zhuyin-chars-col">
+                            ${isNeutral ? `<span class="zhuyin-tone-dot">˙</span>` : ''}
+                            ${symbolsHTML}
+                        </div>
+                        ${(!isNeutral && ch.t) ? `<span class="zhuyin-tone-side">${ch.t}</span>` : ''}
+                    </div>
+                `;
+            }).join('');
+
+            return `<div class="zhuyin-word-option flex-wrap">${syllablesHTML}</div>`;
+        }
+
+        function formatPlainZhuyinString(item) {
+            return item.chars.map(ch => {
+                return ch.t === '˙' ? `˙${ch.z.join('')}` : `${ch.z.join('')}${ch.t}`;
+            }).join(' ');
+        }
+
+        function getFilteredPool() {
+            if (currentScope === 'all') return [...ZHUYIN_DATA];
+            return ZHUYIN_DATA.filter(item => item.row === currentScope);
+        }
+
+        function shuffleArray(arr) {
+            const copy = [...arr];
+            for (let i = copy.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                const temp = copy[i];
+                copy[i] = copy[j];
+                copy[j] = temp;
+            }
+            return copy;
+        }
+
+        // Get distractors with the EXACT same number of characters (syllables) so students can't guess by word length
+        function getSameLengthDistractors(targetQuestion) {
+            const targetLen = targetQuestion.chars.length;
+
+            // First priority: Same character length & same row from worksheet
+            const sameRowSameLen = ZHUYIN_DATA.filter(
+                x => x.id !== targetQuestion.id && x.chars.length === targetLen && x.row === targetQuestion.row
+            );
+
+            // Second priority: Same character length from any row on worksheet
+            const otherRowSameLen = ZHUYIN_DATA.filter(
+                x => x.id !== targetQuestion.id && x.chars.length === targetLen && x.row !== targetQuestion.row
+            );
+
+            let candidates = [...shuffleArray(sameRowSameLen), ...shuffleArray(otherRowSameLen)];
+
+            // If targetLen is 4 (e.g., 黑面琵鷺), pull from EXTRA_4CHAR_ANIMALS so all 3 options have 4 syllables
+            if (candidates.length < 2 && targetLen === 4) {
+                candidates = candidates.concat(shuffleArray(EXTRA_4CHAR_ANIMALS));
+            }
+
+            return candidates.slice(0, 2);
+        }
+
+        function startNewQuiz() {
+            const pool = getFilteredPool();
+            let generated = [];
+            while (generated.length < quizLength) {
+                generated = generated.concat(shuffleArray(pool));
+            }
+            quizQueue = generated.slice(0, quizLength);
+            userAnswers = new Array(quizQueue.length).fill(null);
+
+            // Pre-generate 3 same-length choices for each question
+            questionChoicesCache = quizQueue.map(q => {
+                const distractors = getSameLengthDistractors(q);
+                return shuffleArray([q, ...distractors]);
+            });
+
+            currentIndex = 0;
+            loadQuestion(0, true);
+        }
+
+        function loadQuestion(index, autoSpeak = true) {
+            currentQuestion = quizQueue[index];
+            selectedOptionChoice = userAnswers[index];
+
+            // Update Header Progress
+            document.getElementById('question-counter').textContent = `第 ${index + 1} / ${quizQueue.length} 題`;
+            const pct = Math.round(((index + 1) / quizQueue.length) * 100);
+            document.getElementById('progress-bar').style.width = `${pct}%`;
+            document.getElementById('current-row-badge').textContent = currentQuestion.rowName;
+
+            // Update Visual Cue Box
+            renderQuestionVisualStage();
+
+            // Render the 3 same-length choices
+            const choices = questionChoicesCache[index];
+            const grid = document.getElementById('options-grid');
+            grid.innerHTML = '';
+
+            choices.forEach((choice, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'btn-option-card rounded-3xl p-3 sm:p-4 flex flex-col items-center justify-center min-h-[125px] sm:min-h-[185px] relative group focus:outline-none';
+                if (selectedOptionChoice && selectedOptionChoice.id === choice.id) {
+                    btn.classList.add('option-selected');
+                }
+                btn.dataset.id = choice.id;
+                btn.onclick = () => handleOptionClick(choice, btn);
+
+                const optionLabels = ['①', '②', '③'];
+                btn.innerHTML = `
+                    <span class="absolute top-2.5 left-3 text-xs sm:text-sm font-black text-slate-400">${optionLabels[idx]}</span>
+                    <div class="group-hover:scale-105 transition-transform select-none my-auto py-1">
+                        ${renderOptionWordZhuyinHTML(choice)}
+                    </div>
+                `;
+                grid.appendChild(btn);
+            });
+
+            // Reset Feedback bar (Do NOT reveal answer during quiz)
+            const feedbackBadge = document.getElementById('feedback-badge');
+            feedbackBadge.className = 'hidden';
+
+            const nextBtn = document.getElementById('btn-next-question');
+            const isLastQuestion = (index + 1 === quizQueue.length);
+            nextBtn.innerHTML = isLastQuestion
+                ? `<span>完成交卷（看答案）</span><i class="fa-solid fa-check-double"></i>`
+                : `<span>下一題</span><i class="fa-solid fa-arrow-right"></i>`;
+
+            if (selectedOptionChoice) {
+                nextBtn.classList.remove('hidden');
+                document.getElementById('feedback-message').innerHTML = `
+                    <i class="fa-solid fa-circle-check text-sky-500 text-lg"></i>
+                    <span class="text-sky-800">已選擇選項，可改選或點選「${isLastQuestion ? '完成交卷' : '下一題'}」！</span>
+                `;
+            } else {
+                nextBtn.classList.add('hidden');
+                document.getElementById('feedback-message').innerHTML = `
+                    <i class="fa-regular fa-hand-point-up text-sky-500"></i>
+                    <span>聽完聲音後，選出正確的「動物注音」！</span>
+                `;
+            }
+
+            if (autoSpeak) {
+                setTimeout(() => playCurrentQuestionAudio(), 280);
+            }
+        }
+
+        function renderQuestionVisualStage() {
+            const wordEl = document.getElementById('animal-word-stage');
+            const chantEl = document.getElementById('chant-preview-text');
+
+            if (wordEl) {
+                wordEl.textContent = `第 ${currentIndex + 1} 題：請仔細聽題目作答`;
+            }
+            if (chantEl) {
+                chantEl.textContent = `🔊 點擊上方喇叭可以重聽題目`;
+            }
+        }
+
+        function handleOptionClick(choice, btnElement) {
+            selectedOptionChoice = choice;
+            userAnswers[currentIndex] = choice;
+            playEffectSound('select');
+
+            // Highlight selected option neutrally (allow changing selection before clicking Next)
+            document.querySelectorAll('#options-grid .btn-option-card').forEach(btn => {
+                btn.classList.remove('option-selected');
+            });
+            btnElement.classList.add('option-selected');
+
+            const isLastQuestion = (currentIndex + 1 === quizQueue.length);
+            const badge = document.getElementById('feedback-badge');
+            badge.textContent = '已選擇答案';
+            badge.className = 'px-3 py-1 rounded-full text-xs sm:text-sm font-black bg-sky-100 text-sky-700 border border-sky-300';
+
+            document.getElementById('feedback-message').innerHTML = `
+                <i class="fa-solid fa-circle-check text-sky-500 text-lg"></i>
+                <span class="text-sky-800">已選擇！請點選右側按鈕繼續。</span>
+            `;
+
+            const nextBtn = document.getElementById('btn-next-question');
+            nextBtn.innerHTML = isLastQuestion
+                ? `<span>完成交卷（看答案）</span><i class="fa-solid fa-check-double"></i>`
+                : `<span>下一題</span><i class="fa-solid fa-arrow-right"></i>`;
+            nextBtn.classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            if (!userAnswers[currentIndex]) return;
+
+            if (currentIndex + 1 < quizQueue.length) {
+                currentIndex++;
+                loadQuestion(currentIndex, true);
+            } else {
+                showQuizCompleteModal();
+            }
+        }
+
+        function playCurrentQuestionAudio(customRate = 0.85) {
+            if (!currentQuestion) return;
+            // 直接唸出題目語詞（例如：「蜥蜴」），完全不唸注音符號
+            speakMandarin(currentQuestion.word, customRate);
+        }
+
+        function setScope(scopeKey) {
+            currentScope = scopeKey;
+            document.querySelectorAll('.scope-btn').forEach(btn => {
+                btn.className = 'scope-btn px-2.5 py-1 rounded-xl text-xs sm:text-sm font-bold bg-slate-100 text-slate-600 hover:bg-amber-100';
+            });
+            const activeBtn = document.getElementById(`scope-${scopeKey}`);
+            if (activeBtn) {
+                activeBtn.className = 'scope-btn px-2.5 py-1 rounded-xl text-xs sm:text-sm font-black bg-amber-400 text-slate-900 shadow-sm';
+            }
+            startNewQuiz();
+        }
+
+        function showQuizCompleteModal() {
+            playEffectSound('finish');
+
+            let correctCount = 0;
+            const reviewListEl = document.getElementById('result-review-list');
+            reviewListEl.innerHTML = '';
+
+            quizQueue.forEach((q, idx) => {
+                const picked = userAnswers[idx];
+                const isCorrect = picked && picked.id === q.id;
+                if (isCorrect) correctCount++;
+
+                const correctZhuyin = formatPlainZhuyinString(q);
+                const pickedZhuyin = picked ? formatPlainZhuyinString(picked) : '未作答';
+
+                const rowCard = document.createElement('div');
+                rowCard.className = `p-3 sm:p-4 rounded-2xl border-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2 ${
+                    isCorrect ? 'bg-emerald-50/80 border-emerald-300' : 'bg-rose-50/80 border-rose-300'
+                }`;
+
+                rowCard.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="w-8 h-8 rounded-full font-black text-sm flex items-center justify-center shrink-0 ${
+                            isCorrect ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'
+                        }">
+                            ${isCorrect ? '⭕' : '❌'}
+                        </span>
+                        <div class="text-2xl sm:text-3xl">${q.emoji}</div>
+                        <div>
+                            <div class="font-black text-slate-800 text-base sm:text-lg">
+                                第 ${idx + 1} 題：${q.word}
+                            </div>
+                            <div class="text-xs sm:text-sm font-bold text-emerald-800">
+                                正確注音：<span class="font-black bg-white px-2 py-0.5 rounded-lg border border-emerald-200">${correctZhuyin}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-xs sm:text-sm font-bold sm:text-right pl-11 sm:pl-0">
+                        ${
+                            isCorrect
+                                ? `<span class="text-emerald-700 font-black">✔ 答對 +2分（${pickedZhuyin}）</span>`
+                                : `<span class="text-rose-700 font-black">✖ 0分｜學生選了：${pickedZhuyin}（${picked ? picked.word : ''}）</span>`
+                        }
+                    </div>
+                `;
+                reviewListEl.appendChild(rowCard);
+            });
+
+            const totalScore = correctCount * 2;
+            const maxScore = quizQueue.length * 2;
+            document.getElementById('final-stars').textContent = totalScore;
+            document.getElementById('final-accuracy').textContent = `${correctCount} / ${quizQueue.length}`;
+
+            const timeStr = new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
+            const existingIdx = examScoreRecords.findIndex(
+                r => r.className === selectedClassName && r.seatNo === selectedSeatNo
+            );
+            const recordObj = {
+                className: selectedClassName,
+                seatNo: selectedSeatNo || 1,
+                score: totalScore,
+                maxScore: maxScore,
+                correctCount: correctCount,
+                totalQuestions: quizQueue.length,
+                testedAt: timeStr
+            };
+
+            if (existingIdx >= 0) {
+                examScoreRecords[existingIdx] = recordObj;
+            } else {
+                examScoreRecords.push(recordObj);
+            }
+            // Sort records by class then seat number
+            examScoreRecords.sort((a, b) => {
+                if (a.className !== b.className) return a.className.localeCompare(b.className, 'zh-TW');
+                return a.seatNo - b.seatNo;
+            });
+            renderScoreboardUI();
+
+            document.getElementById('result-title').textContent = `${selectedClassName} ${selectedSeatNo}號 — 測驗完成！`;
+            document.getElementById('result-subtitle').textContent = `成績已自動記錄！答對 ${correctCount} 題，得分 ${totalScore} 分（滿分 ${maxScore} 分）`;
+
+            const trophyEl = document.getElementById('result-trophy');
+            if (totalScore === maxScore) {
+                trophyEl.textContent = '🏆';
+            } else if (totalScore >= maxScore * 0.6) {
+                trophyEl.textContent = '🌟';
+            } else {
+                trophyEl.textContent = '💪';
+            }
+
+            document.getElementById('modal-result').classList.remove('hidden');
+
+            if (typeof confetti === 'function' && totalScore >= maxScore * 0.6) {
+                confetti({
+                    particleCount: 90,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            }
+        }
+
+        function closeResultAndNextStudent() {
+            // Auto-advance seat number by 1 (if < 25) for convenience on the login screen
+            if (selectedSeatNo && selectedSeatNo < 25) {
+                selectedSeatNo++;
+            } else {
+                selectedSeatNo = null;
+            }
+            showLoginScreen();
+        }
+
+        function openSettingsModal() {
+            initVoices();
+            document.getElementById('modal-settings').classList.remove('hidden');
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('modal-settings').classList.add('hidden');
+        }
+
+        function setQuizLength(len) {
+            quizLength = len;
+            document.querySelectorAll('.qlen-btn').forEach(btn => {
+                btn.className = 'qlen-btn py-2 rounded-xl border-2 border-slate-200 font-black';
+            });
+            const active = document.getElementById(`qlen-${len}`);
+            if (active) {
+                active.className = 'qlen-btn py-2 rounded-xl border-2 border-sky-500 bg-sky-50 text-sky-700 font-black';
+            }
+            if (!document.getElementById('view-quiz').classList.contains('hidden')) {
+                startNewQuiz();
+            }
+        }
+
+        function testSelectedVoice() {
+            speakMandarin('蜥蜴', 0.85);
+        }
+
+        // Initialize on window load: show pre-exam Class & Seat login screen first
+        window.onload = function () {
+            initLoginSeatGrid();
+            renderScoreboardUI();
+        };
+    </script>
+</body>
+</html>
